@@ -252,26 +252,36 @@ if not st.session_state.show_checkout:
                         st.warning("Görsel bulunamadı.")
 
                     st.markdown(f"<div style='font-weight:700;font-size:1.12em;margin-top:4px;'>{row['Ürün Adı']}</div>", unsafe_allow_html=True)
-                    st.write(
-                        f"Koli İçi: {row['Koli İçi Adet']}  \n"
-                        f"Adet Fiyatı: {row['Adet Fiyatı (USD)']} $  \n"
-                        f"Koli Fiyatı: {row['Koli Fiyatı (USD)']} $  \n"
-                        f"Palet Üstü Koli: {row['Palet Üstü Koli']}"
-                    )
+                     palet_degeri = row.get("Palet Üstü Koli")
+                    koli_cbm_raw = row.get("Koli Ebat") or row.get("Koli Ebat (CBM)") or row.get("CBM")
+                    detaylar = [
+                        f"Koli İçi: {row['Koli İçi Adet']}",
+                        f"Adet Fiyatı: {row['Adet Fiyatı (USD)']} $",
+                        f"Koli Fiyatı: {row['Koli Fiyatı (USD)']} $",
+                    ]
+                    if palet_degeri is not None and str(palet_degeri).strip() != "":
+                        detaylar.append(f"Palet Üstü Koli: {palet_degeri}")
+                        palet_var = True
+                    else:
+                        palet_var = False
+                        if koli_cbm_raw is not None and str(koli_cbm_raw).strip() != "":
+                            detaylar.append(f"Koli Ebat (CBM): {koli_cbm_raw}")
+                    st.write("  \n".join(detaylar))
 
+                    siparis_opsiyon = ("Koli", "Palet") if palet_var else ("Koli",)
                     siparis_tipi = st.radio(
                         f"{row['Ürün Adı']} için sipariş tipi",
-                        ("Koli", "Palet"),
+                        siparis_opsiyon,
                         key=f"tip_{i}_{secili_grup}",
                         horizontal=True,
                         label_visibility="collapsed"
                     )
 
-                    if siparis_tipi == "Koli":
+                    if siparis_tipi == "Koli" or not palet_var:
                         qty = st.number_input("Koli", min_value=0, step=1, key=f"qty_{i}_{secili_grup}")
                     else:
                         try:
-                            palet_ustu_koli = int(float(str(row["Palet Üstü Koli"]).replace(",", ".").strip()))
+                            palet_ustu_koli = int(float(str(palet_degeri).replace(",", ".").strip()))
                         except Exception:
                             palet_ustu_koli = 1
                         palet_adedi = st.number_input("Palet Adedi", min_value=0, step=1, key=f"paletqty_{i}_{secili_grup}")
@@ -282,25 +292,27 @@ if not st.session_state.show_checkout:
                     if st.button("🚚 TIR'a Ekle", key=f"add_{i}_{secili_grup}"):
                         if qty > 0:
                             try:
-                                 koli_fiyat = float(str(row["Koli Fiyatı (USD)"]).replace(",", ".").strip())
-                            except:
+                                 kkoli_fiyat = float(str(row["Koli Fiyatı (USD)"]).replace(",", ".").strip())
+                            except Exception:
                                 koli_fiyat = 0
-                                koli_cbm_raw = row.get("Koli Ebat", row.get("Koli Ebat (CBM)", row.get("CBM", 0)))
+                               
                             try:
                                 koli_cbm = float(str(koli_cbm_raw).replace(",", ".").strip())
                             except Exception:
                                 koli_cbm = 0.0
                             toplam_cbm = qty * koli_cbm
-                            st.session_state.cart.append({
+                            item = {
                                 "Ürün Grubu": secili_grup,
                                 "Ürün Adı": row["Ürün Adı"],
                                 "Koli Adedi": qty,
                                 "Koli Fiyatı (USD)": koli_fiyat,
                                 "Toplam ($)": qty * koli_fiyat,
-                                "Palet Üstü Koli": row.get("Palet Üstü Koli", 1),
                                 "Koli CBM": koli_cbm,
                                 "Toplam CBM": toplam_cbm,
-                            })
+                        }
+                            if palet_var:
+                                item["Palet Üstü Koli"] = palet_degeri
+                            st.session_state.cart.append(item)
                             save_cart_to_file(st.session_state.cart, bayi_adi)
                             st.success("Ürün TIR'a eklendi.")
                         else:
