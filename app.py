@@ -6,6 +6,7 @@ import uuid
 import datetime
 import glob
 import json
+import re
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
@@ -55,6 +56,19 @@ gruplar = [
 ]
 
 st.set_page_config(layout="wide")
+
+# ------------------ HELPER: GOOGLE DRIVE LINK ------------------
+def convert_google_drive_link(link: str):
+    if "drive.google.com" not in link:
+        return link
+    match = re.search(r"/d/([a-zA-Z0-9_-]+)", link)
+    if not match:
+        match = re.search(r"id=([a-zA-Z0-9_-]+)", link)
+    if match:
+        file_id = match.group(1)
+        return f"https://drive.google.com/uc?export=view&id={file_id}"
+    return None
+
 
 # ------------------ PUAN FONKSİYONLARI ------------------
 def _puan_dosyasi_yukle() -> dict:
@@ -247,7 +261,11 @@ if not st.session_state.show_checkout:
                 with st.container(border=True):
                     img_link = row.get("Görsel Linki", "")
                     if isinstance(img_link, str) and img_link.startswith("http"):
-                        st.image(img_link, width=155)
+                        img_link = convert_google_drive_link(img_link)
+                        if img_link:
+                            st.image(img_link, width=155)
+                        else:
+                            st.warning("Görsel bulunamadı.")
                     else:
                         st.warning("Görsel bulunamadı.")
 
