@@ -310,7 +310,7 @@ if not st.session_state.show_checkout:
                     if st.button("🚚 TIR'a Ekle", key=f"add_{i}_{secili_grup}"):
                         if qty > 0:
                             try:
-                                 kkoli_fiyat = float(str(row["Koli Fiyatı (USD)"]).replace(",", ".").strip())
+                                 koli_fiyat = float(str(row["Koli Fiyatı (USD)"]).replace(",", ".").strip())
                             except Exception:
                                 koli_fiyat = 0
                                
@@ -327,7 +327,7 @@ if not st.session_state.show_checkout:
                                 "Toplam ($)": qty * koli_fiyat,
                                 "Koli CBM": koli_cbm,
                                 "Toplam CBM": toplam_cbm,
-                        }
+                            }
                             if palet_var:
                                 item["Palet Üstü Koli"] = palet_degeri
                             st.session_state.cart.append(item)
