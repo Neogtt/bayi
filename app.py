@@ -353,7 +353,7 @@ if st.session_state.show_checkout:
     # Toplam palet, Şeker Puan ve CBM hesapları
     toplam, toplam_palet, toplam_seker_puan, total_cbm = 0.0, 0.0, 0, 0.0
 
-    iif not summary.empty:
+    if not summary.empty:
         if "Koli Adedi" in summary.columns and "Palet Üstü Koli" in summary.columns:
             # Toplam Palet
             summary["Toplam Palet"] = summary.apply(
