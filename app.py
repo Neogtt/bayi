@@ -39,6 +39,8 @@ BAYI_KULLANICILAR = {
     "Lyon": "Lyon1234!",
     "Romanya": "Romanya1234!",
     "Bulgaristan": "Bulgaristan1234!"
+    "irak": "Seker1234!"
+    
 }
 
 # ---- Sheets / Logo ----
@@ -129,6 +131,10 @@ if not st.session_state.login_ok:
     st.stop()
 
 bayi_adi = st.session_state.bayi_adi
+
+if bayi_adi == "irak":
+    gruplar = [{"isim": "Irak", "sheet": "irak", "resim": LOGO_URL}]
+    st.session_state.secili_grup = "Irak"
 
 # Sidebar: Bayi bilgisi + toplam puan
 with st.sidebar:
@@ -248,8 +254,8 @@ if not st.session_state.show_checkout:
                     st.markdown(f"<div style='font-weight:700;font-size:1.12em;margin-top:4px;'>{row['Ürün Adı']}</div>", unsafe_allow_html=True)
                     st.write(
                         f"Koli İçi: {row['Koli İçi Adet']}  \n"
-                        f"Adet Fiyatı: {row['Adet Fiyatı (€)']} €  \n"
-                        f"Koli Fiyatı: {row['Koli Fiyatı (€)']} €  \n"
+                        f"Adet Fiyatı: {row['Adet Fiyatı (USD)']} $  \n"
+                        f"Koli Fiyatı: {row['Koli Fiyatı (USD)']} $  \n"
                         f"Palet Üstü Koli: {row['Palet Üstü Koli']}"
                     )
 
@@ -276,16 +282,24 @@ if not st.session_state.show_checkout:
                     if st.button("🚚 TIR'a Ekle", key=f"add_{i}_{secili_grup}"):
                         if qty > 0:
                             try:
-                                koli_fiyat = float(str(row["Koli Fiyatı (€)"]).replace(",", ".").strip())
+                                 koli_fiyat = float(str(row["Koli Fiyatı (USD)"]).replace(",", ".").strip())
                             except:
                                 koli_fiyat = 0
+                                 koli_cbm_raw = row.get("Koli Ebat", row.get("Koli Ebat (CBM)", row.get("CBM", 0)))
+                            try:
+                                koli_cbm = float(str(koli_cbm_raw).replace(",", ".").strip())
+                            except Exception:
+                                koli_cbm = 0.0
+                            toplam_cbm = qty * koli_cbm
                             st.session_state.cart.append({
                                 "Ürün Grubu": secili_grup,
                                 "Ürün Adı": row["Ürün Adı"],
                                 "Koli Adedi": qty,
-                                "Koli Fiyatı (€)": koli_fiyat,
-                                "Toplam (€)": qty * koli_fiyat,
-                                "Palet Üstü Koli": row.get("Palet Üstü Koli", 1)
+                                "Koli Fiyatı (USD)": koli_fiyat,
+                                "Toplam ($)": qty * koli_fiyat,
+                                "Palet Üstü Koli": row.get("Palet Üstü Koli", 1),
+                                "Koli CBM": koli_cbm,
+                                "Toplam CBM": toplam_cbm,
                             })
                             save_cart_to_file(st.session_state.cart, bayi_adi)
                             st.success("Ürün TIR'a eklendi.")
@@ -336,15 +350,22 @@ if st.session_state.show_checkout:
     cart = st.session_state.cart
     summary = pd.DataFrame(cart)
 
-    # Toplam palet ve Şeker Puan hesapları
-    toplam, toplam_palet, toplam_seker_puan = 0.0, 0.0, 0
+    # Toplam palet, Şeker Puan ve CBM hesapları
+    toplam, toplam_palet, toplam_seker_puan, total_cbm = 0.0, 0.0, 0, 0.0
 
-    if not summary.empty and "Koli Adedi" in summary.columns and "Palet Üstü Koli" in summary.columns:
-        # Toplam Palet
-        summary["Toplam Palet"] = summary.apply(
-            lambda r: round(float(r["Koli Adedi"]) / float(str(r.get("Palet Üstü Koli", 1)).replace(",", ".")), 2)
-            if float(str(r.get("Palet Üstü Koli", 1)).replace(",", ".")) > 0 else 0, axis=1
-        )
+    iif not summary.empty:
+        if "Koli Adedi" in summary.columns and "Palet Üstü Koli" in summary.columns:
+            # Toplam Palet
+            summary["Toplam Palet"] = summary.apply(
+                lambda r: round(float(r["Koli Adedi"]) / float(str(r.get("Palet Üstü Koli", 1)).replace(",", ".")), 2)
+                if float(str(r.get("Palet Üstü Koli", 1)).replace(",", ".")) > 0 else 0, axis=1
+            )
+
+        if "Koli Adedi" in summary.columns and "Koli CBM" in summary.columns:
+            summary["Toplam CBM"] = summary["Koli Adedi"].astype(float) * summary["Koli CBM"].astype(float)
+            total_cbm = float(summary["Toplam CBM"].sum())
+        else:
+            summary["Toplam CBM"] = 0
 
         # Şeker Puan (satır bazında)
         def satir_puan_hesapla(r):
@@ -360,21 +381,22 @@ if st.session_state.show_checkout:
 
         # Alt toplamlar
         try:
-            toplam = summary["Toplam (€)"].astype(float).sum()
+            toplam = summary["Toplam ($)"].astype(float).sum()
         except Exception:
-            toplam = float(sum([float(str(x).replace(",", ".")) for x in summary["Toplam (€)"].tolist()]))
+            toplam = float(sum([float(str(x).replace(",", ".")) for x in summary["Toplam ($)"].tolist()]))
 
-        toplam_palet = float(summary["Toplam Palet"].sum())
+        toplam_palet = float(summary.get("Toplam Palet", pd.Series(dtype=float)).sum())
         toplam_seker_puan = int(summary["Şeker Puan"].sum())
 
         # Tabloda göster
         st.table(summary)
 
         # ---- ÖZET METRİKLER ----
-        c1, c2, c3 = st.columns(3)
-        c1.metric("Genel Toplam (€)", f"{toplam:,.2f}")
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("Genel Toplam ($)", f"{toplam:,.2f}")
         c2.metric("Toplam Palet", f"{toplam_palet:.2f}")
         c3.metric("Toplam Şeker Puan", f"{toplam_seker_puan:,}")
+        c4.metric("Toplam CBM", f"{total_cbm:.2f}")
 
         # Yükleme tipi
         yukleme_tipi = st.radio(
@@ -404,7 +426,7 @@ if st.session_state.show_checkout:
         """, unsafe_allow_html=True)
     else:
         st.table(pd.DataFrame(columns=[
-            "Ürün Grubu", "Ürün Adı", "Koli Adedi", "Koli Fiyatı (€)", "Toplam (€)", "Toplam Palet", "Şeker Puan"
+              "Ürün Grubu", "Ürün Adı", "Koli Adedi", "Koli Fiyatı (€)", "Toplam (€)", "Koli CBM", "Toplam CBM", "Toplam Palet", "Şeker Puan"
         ]))
         st.info("Henüz TIR'ınızda ürün yok.")
 
@@ -436,8 +458,8 @@ if st.session_state.show_checkout:
             pdf.cell(widths[0], 5, str(r.get("Ürün Grubu", ""))[:14], border=1)
             pdf.cell(widths[1], 5, str(r.get("Ürün Adı", ""))[:30],  border=1)
             pdf.cell(widths[2], 5, str(r.get("Koli Adedi", "")),     border=1, align="C")
-            pdf.cell(widths[3], 5, str(r.get("Koli Fiyatı (€)", "")),border=1, align="R")
-            pdf.cell(widths[4], 5, str(r.get("Toplam (€)", "")),     border=1, align="R")
+            pdf.cell(widths[3], 5, str(r.get("Koli Fiyatı (USD)", "")),border=1, align="R")
+            pdf.cell(widths[4], 5, str(r.get("Toplam ($)", "")),     border=1, align="R")
             pdf.cell(widths[5], 5, str(r.get("Toplam Palet", "")),   border=1, align="C")
             pdf.cell(widths[6], 5, str(r.get("Şeker Puan", "")),     border=1, align="C")
             pdf.ln()
@@ -449,7 +471,7 @@ if st.session_state.show_checkout:
         pdf.cell(65, 9, "", 1, 1, 'L')
         return pdf
 
-    if not summary.empty and "Toplam (€)" in summary.columns:
+    if not summary.empty and "Toplam ($)" in summary.columns:
         pdf_tarih = datetime.datetime.now().strftime("%d.%m.%Y")
         if st.button("📄 PDF Çıktısı Al"):
             pdf = pdf_siparis_olustur(summary, bayi_adi, pdf_tarih)
@@ -464,7 +486,7 @@ if st.session_state.show_checkout:
                     )
 
     # Sepetten ürün çıkarma
-    if not summary.empty and "Toplam (€)" in summary.columns:
+    if not summary.empty and "Toplam ($)" in summary.columns:
         for sidx, row in summary.iterrows():
             if st.button(f"❌ {row['Ürün Adı']} ürünü çıkar", key=f"del_checkout_{sidx}"):
                 st.session_state.cart.pop(sidx)
@@ -498,7 +520,7 @@ Sipariş Kodu: {siparis_kodu}
 
 Sipariş özeti ektedir.
 
-Genel Toplam: {toplam:.2f} €
+Genel Toplam: {toplam:.2f} $
 Toplam Palet: {toplam_palet:.2f}
 Toplam Şeker Puan: {toplam_seker_puan:,}
 
