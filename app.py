@@ -252,7 +252,7 @@ if not st.session_state.show_checkout:
                         st.warning("Görsel bulunamadı.")
 
                     st.markdown(f"<div style='font-weight:700;font-size:1.12em;margin-top:4px;'>{row['Ürün Adı']}</div>", unsafe_allow_html=True)
-                     palet_degeri = row.get("Palet Üstü Koli")
+                    palet_degeri = row.get("Palet Üstü Koli")
                     koli_cbm_raw = row.get("Koli Ebat") or row.get("Koli Ebat (CBM)") or row.get("CBM")
                     detaylar = [
                         f"Koli İçi: {row['Koli İçi Adet']}",
