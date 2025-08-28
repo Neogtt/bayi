@@ -285,7 +285,7 @@ if not st.session_state.show_checkout:
                                  koli_fiyat = float(str(row["Koli Fiyatı (USD)"]).replace(",", ".").strip())
                             except:
                                 koli_fiyat = 0
-                                 koli_cbm_raw = row.get("Koli Ebat", row.get("Koli Ebat (CBM)", row.get("CBM", 0)))
+                                koli_cbm_raw = row.get("Koli Ebat", row.get("Koli Ebat (CBM)", row.get("CBM", 0)))
                             try:
                                 koli_cbm = float(str(koli_cbm_raw).replace(",", ".").strip())
                             except Exception:
