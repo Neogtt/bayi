@@ -21,10 +21,10 @@ PUAN_KAYIT_DOSYASI = "puanlar.json"  # bayi puanları burada tutulur
 
 # ---- Puan katsayıları (Ürün Grubu -> katsayı) ----
 PUAN_KATSAYILARI = {
-    "Kahveler": 3,
-    "Şekerleme": 2,
-    "Hazır Setler": 2,
-    "Soslar": 1
+    "القهوة": 3,
+    "الحلويات": 2,
+    "المجموعات الجاهزة": 2,
+    "الصلصات": 1,
 }
 
 # ---- Basit kullanıcılar ----
@@ -49,10 +49,10 @@ sheet_id = "1hXJ9klpaYNz4Ut4l5DCSJnObwGz-ZjCzU0SSmDjzFHE"
 LOGO_URL = "https://www.sekeroglugroup.com/storage/settings/xdp5r6DZIFJMNGOStqwvKCiVHDhYxA84jFr61TNp.svg"
 
 gruplar = [
-    {"isim": "Kahveler",     "sheet": "Kahveler", "resim": "https://www.sekeroglugroup.com/storage/products/pistachio-coffee_67a9ee6f9f673.png"},
-    {"isim": "Hazır Setler", "sheet": "HazirSet", "resim": "https://www.sekeroglugroup.com/storage/products/raw-meatball-sets_67acb5785fe5b.png"},
-    {"isim": "Şekerleme",    "sheet": "Sekerleme","resim": "https://www.sekeroglugroup.com/storage/products/mixed-flavoured-suppository-turkish-delight_67acb00828d44.png"},
-    {"isim": "Soslar",       "sheet": "Soslar",   "resim": "https://www.sekeroglugroup.com/storage/products/pomegranate-sour_67acb4dc1925c.png"},
+    {"isim": "القهوة",            "sheet": "Kahveler", "resim": "https://www.sekeroglugroup.com/storage/products/pistachio-coffee_67a9ee6f9f673.png"},
+    {"isim": "المجموعات الجاهزة", "sheet": "HazirSet", "resim": "https://www.sekeroglugroup.com/storage/products/raw-meatball-sets_67acb5785fe5b.png"},
+    {"isim": "الحلويات",          "sheet": "Sekerleme","resim": "https://www.sekeroglugroup.com/storage/products/mixed-flavoured-suppository-turkish-delight_67acb00828d44.png"},
+    {"isim": "الصلصات",            "sheet": "Soslar",   "resim": "https://www.sekeroglugroup.com/storage/products/pomegranate-sour_67acb4dc1925c.png"},
 ]
 
 st.set_page_config(layout="wide")
@@ -130,31 +130,30 @@ if "sepet_duzenlendi" not in st.session_state: st.session_state.sepet_duzenlendi
 
 # ------------------ LOGIN ------------------
 if not st.session_state.login_ok:
-    st.image(LOGO_URL, width=300)
-    st.markdown("<h2 style='text-align:center;'>ŞEKEROĞLU SİPARİŞ PORTALI</h2>", unsafe_allow_html=True)
-    username = st.text_input("Kullanıcı Adı", max_chars=30)
-    password = st.text_input("Şifre", type="password")
-    if st.button("Giriş Yap"):
+    st.markdown("<h2 style='text-align:center;'>بوابة طلبات شكروغلو</h2>", unsafe_allow_html=True)
+    username = st.text_input("اسم المستخدم", max_chars=30)
+    password = st.text_input("كلمة المرور", type="password")
+    if st.button("تسجيل الدخول"):
         if username in BAYI_KULLANICILAR and BAYI_KULLANICILAR[username] == password:
             st.session_state.login_ok = True
             st.session_state.bayi_adi = username
-            st.success("Giriş başarılı!")
+             st.success("تم تسجيل الدخول بنجاح!")
             st.rerun()
         else:
-            st.error("Kullanıcı adı veya şifre hatalı!")
+            st.error("اسم المستخدم أو كلمة المرور غير صحيحة!")
     st.stop()
 
 bayi_adi = st.session_state.bayi_adi
 
-if bayi_adi == "irak":
-    gruplar = [{"isim": "Irak", "sheet": "irak", "resim": LOGO_URL}]
-    st.session_state.secili_grup = "Irak"
+if bayi_adi == "العراق":
+    gruplar = [{"isim": "العراق", "sheet": "irak", "resim": LOGO_URL}]
+    st.session_state.secili_grup = "العراق"
 
 # Sidebar: Bayi bilgisi + toplam puan
 with st.sidebar:
-    st.markdown(f"**Bayi:** {bayi_adi}")
-    st.markdown(f"**Toplam Şeker Puan:** {get_bayi_puan(bayi_adi)}")
-    if st.button("Çıkış Yap"):
+    st.markdown(f"**الوكيل:** {bayi_adi}")
+    st.markdown(f"**إجمالي نقاط شكر:** {get_bayi_puan(bayi_adi)}")
+    if st.button("تسجيل الخروج"):
         st.session_state.clear()
         st.rerun()
 
@@ -162,9 +161,9 @@ with st.sidebar:
 if not st.session_state.cart:
     eski_cart = load_cart_from_file(bayi_adi)
     if eski_cart:
-        if st.button("💾 Kaydedilmiş sipariş taslağını yükle"):
+         if st.button("💾 تحميل مسودة الطلب المحفوظة"):
             st.session_state.cart = eski_cart
-            st.success("Taslak siparişiniz geri yüklendi!")
+            st.success("تم استعادة مسودة الطلب!")
             st.rerun()
 
 # ------------------ ANA MENÜ ------------------
@@ -177,9 +176,9 @@ if not st.session_state.show_checkout:
         st.markdown("""
             <div style='text-align:center;margin-bottom:32px;margin-top:10px;'>
                 <h1 style='color:#b70404;font-weight:900;letter-spacing:2px;font-size:2.3em;'>
-                    ŞEKEROĞLU SİPARİŞ EKRANINA HOŞGELDİNİZ!!!
+                    مرحبًا بكم في شاشة طلبات شكروغلو!!!
                 </h1>
-                <p style='font-size:1.1em;margin-bottom:35px;color:#145374;'>Lütfen bir ürün grubu seçiniz:</p>
+                <p style='font-size:1.1em;margin-bottom:35px;color:#145374;'>يرجى اختيار مجموعة منتجات:</p>
             </div>
         """, unsafe_allow_html=True)
 
@@ -195,12 +194,12 @@ if not st.session_state.show_checkout:
                     """,
                     unsafe_allow_html=True
                 )
-                if st.button("SEÇ", key=f"grup_{grup['isim']}", use_container_width=True):
+                if st.button("اختر", key=f"grup_{grup['isim']}", use_container_width=True):
                     st.session_state.secili_grup = grup["isim"]
                     st.rerun()
         st.stop()
 
-    if st.button("← Ana Ekrana Dön"):
+    if st.button("← العودة إلى الشاشة الرئيسية"):
         st.session_state.secili_grup = None
         st.rerun()
 
@@ -216,10 +215,10 @@ if not st.session_state.show_checkout:
     try:
         df = load_sheet(sheet_id, sheet_name)
     except Exception as e:
-        st.error(f"Veri yüklenemedi: {e}")
+         st.error(f"تعذر تحميل البيانات: {e}")
         st.stop()
 
-    st.markdown(f"<h2 style='margin-top:12px;'>Bayi Sipariş Ekranı — {secili_grup}</h2>", unsafe_allow_html=True)
+    st.markdown(f"<h2 style='margin-top:12px;'>شاشة طلب الوكيل — {secili_grup}</h2>", unsafe_allow_html=True)
 
     # Yatay grup menüsü
     grup_cols = st.columns(len(gruplar), gap="medium")
@@ -235,7 +234,7 @@ if not st.session_state.show_checkout:
                 </div>""",
                 unsafe_allow_html=True
             )
-            if st.button("Git", key=f"grup_goto_{grup['isim']}", use_container_width=True, disabled=grup["isim"]==secili_grup):
+            if st.button("انتقل", key=f"grup_goto_{grup['isim']}", use_container_width=True, disabled=grup["isim"]==secili_grup):
                 st.session_state.secili_grup = grup["isim"]
                 st.rerun()
 
@@ -246,7 +245,7 @@ if not st.session_state.show_checkout:
         </style>
     """, unsafe_allow_html=True)
     st.markdown("<div class='checkout-fab'>", unsafe_allow_html=True)
-    if st.button("🛒 TIR'ıma Git", key="fab_checkout"):
+    if st.button("🛒 الانتقال إلى شاحنتي", key="fab_checkout"):
         st.session_state.show_checkout = True
         st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
@@ -267,53 +266,53 @@ if not st.session_state.show_checkout:
                         else:
                             st.warning("Görsel bulunamadı.")
                     else:
-                        st.warning("Görsel bulunamadı.")
+                        st.warning("الصورة غير متوفرة.")
 
                     st.markdown(f"<div style='font-weight:700;font-size:1.12em;margin-top:4px;'>{row['Ürün Adı']}</div>", unsafe_allow_html=True)
                     palet_degeri = row.get("Palet Üstü Koli")
                     koli_cbm_raw = row.get("Koli Ebat") or row.get("Koli Ebat (CBM)") or row.get("CBM")
                     detaylar = [
-                        f"Koli İçi: {row['Koli İçi Adet']}",
-                        f"Adet Fiyatı: {row['Adet Fiyatı (USD)']} $",
-                        f"Koli Fiyatı: {row['Koli Fiyatı (USD)']} $",
+                        f"عدد الوحدات في الكرتون: {row['Koli İçi Adet']}",
+                        f"سعر القطعة: {row['Adet Fiyatı (USD)']} $",
+                        f"سعر الكرتون: {row['Koli Fiyatı (USD)']} $",
                     ]
                     if palet_degeri is not None and str(palet_degeri).strip() != "":
-                        detaylar.append(f"Palet Üstü Koli: {palet_degeri}")
+                        detaylar.append(f"عدد الكراتين في البليت: {palet_degeri}")
                         palet_var = True
                     else:
                         palet_var = False
                         if koli_cbm_raw is not None and str(koli_cbm_raw).strip() != "":
-                            detaylar.append(f"Koli Ebat (CBM): {koli_cbm_raw}")
+                            detaylar.append(f"حجم الكرتون (CBM): {koli_cbm_raw}"
                     st.write("  \n".join(detaylar))
 
-                    siparis_opsiyon = ("Koli", "Palet") if palet_var else ("Koli",)
+                    siparis_opsiyon = ("كرتون", "بليت") if palet_var else ("كرتون",)
                     siparis_tipi = st.radio(
-                        f"{row['Ürün Adı']} için sipariş tipi",
+                        f"نوع الطلب لـ {row['Ürün Adı']}",
                         siparis_opsiyon,
                         key=f"tip_{i}_{secili_grup}",
                         horizontal=True,
                         label_visibility="collapsed"
                     )
 
-                    if siparis_tipi == "Koli" or not palet_var:
-                        qty = st.number_input("Koli", min_value=0, step=1, key=f"qty_{i}_{secili_grup}")
+                    if siparis_tipi == "كرتون" or not palet_var:
+                        qty = st.number_input("عدد الكراتين", min_value=0, step=1, key=f"qty_{i}_{secili_grup}")
                     else:
                         try:
                             palet_ustu_koli = int(float(str(palet_degeri).replace(",", ".").strip()))
                         except Exception:
                             palet_ustu_koli = 1
-                        palet_adedi = st.number_input("Palet Adedi", min_value=0, step=1, key=f"paletqty_{i}_{secili_grup}")
+                        palet_adedi = st.number_input("عدد البليتات", min_value=0, step=1, key=f"paletqty_{i}_{secili_grup}")
                         qty = palet_adedi * palet_ustu_koli
-                        st.caption(f"{palet_adedi} palet × {palet_ustu_koli} koli/palet = {qty} koli")
+                        st.caption(f"{palet_adedi} بليت × {palet_ustu_koli} كرتون/بليت = {qty} كرتون")
 
                     st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
-                    if st.button("🚚 TIR'a Ekle", key=f"add_{i}_{secili_grup}"):
+                    if st.button("🚚 أضف إلى الشاحنة", key=f"add_{i}_{secili_grup}"):
                         if qty > 0:
                             try:
                                  koli_fiyat = float(str(row["Koli Fiyatı (USD)"]).replace(",", ".").strip())
                             except Exception:
                                 koli_fiyat = 0
-                               
+
                             try:
                                 koli_cbm = float(str(koli_cbm_raw).replace(",", ".").strip())
                             except Exception:
@@ -332,13 +331,13 @@ if not st.session_state.show_checkout:
                                 item["Palet Üstü Koli"] = palet_degeri
                             st.session_state.cart.append(item)
                             save_cart_to_file(st.session_state.cart, bayi_adi)
-                            st.success("Ürün TIR'a eklendi.")
+                            st.success("تمت إضافة المنتج إلى الشاحنة.")
                         else:
-                            st.warning("Lütfen koli/palet adedi girin.")
+                            st.warning("يرجى إدخال عدد الكراتين/البليتات.")
 
 # ------------------ CHECKOUT ------------------
 if st.session_state.show_checkout:
-    st.header("TIR Kontrol Ekranı (Checkout)")
+   st.header("شاشة التحقق من الشاحنة (الدفع)")
 
     # Eski siparişleri tarama
     eski_siparisler = []
@@ -361,15 +360,16 @@ if st.session_state.show_checkout:
     eski_opsiyonlar = [f"{kod} ({bayi_ad}) [{tarih}]" for kod, bayi_ad, file, df_, tarih in eski_siparisler if bayi_ad == bayi_adi]
     eski_kod_map   = {f"{kod} ({bayi_ad}) [{tarih}]": file for kod, bayi_ad, file, df_, tarih in eski_siparisler if bayi_ad == bayi_adi}
 
-    st.markdown("##### Eski Siparişe Git / Revize Et:")
-    eski_secim = st.selectbox("Geçmiş siparişlerinizden birini yükleyin:", ["Seçiniz"] + eski_opsiyonlar, key="revize_combo")
+    sst.markdown("##### الانتقال إلى طلب سابق / تعديله:")
+    eski_secim = st.selectbox("قم بتحميل أحد طلباتك السابقة:", ["اختر"] + eski_opsiyonlar, key="revize_combo")
 
-    if eski_secim != "Seçiniz":
+
+   if eski_secim != "اختر":
         dosya = eski_kod_map[eski_secim]
         df_loaded = pd.read_excel(dosya)
-        st.markdown(f"**Seçili Sipariş:** {eski_secim}")
+         st.markdown(f"**الطلب المحدد:** {eski_secim}")
         st.dataframe(df_loaded, use_container_width=True)
-        if st.button("TIR'a Aktar ve Düzenle"):
+        if st.button("نقل إلى الشاحنة وتعديل"):
             st.session_state.cart = df_loaded.to_dict(orient="records")
             st.session_state.revizyon_siparis = os.path.splitext(os.path.basename(dosya))[0]
             st.session_state.revizyon_loaded = True
@@ -419,23 +419,34 @@ if st.session_state.show_checkout:
         toplam_seker_puan = int(summary["Şeker Puan"].sum())
 
         # Tabloda göster
-        st.table(summary)
+        display_summary = summary.rename(columns={
+            "Ürün Grubu": "مجموعة المنتج",
+            "Ürün Adı": "اسم المنتج",
+            "Koli Adedi": "عدد الكراتين",
+            "Koli Fiyatı (USD)": "سعر الكرتون ($)",
+            "Toplam ($)": "الإجمالي ($)",
+            "Koli CBM": "حجم الكرتون (CBM)",
+            "Toplam CBM": "إجمالي CBM",
+            "Toplam Palet": "إجمالي البليتات",
+            "Şeker Puan": "نقاط شكر",
+        })
+        st.table(display_summary)
 
         # ---- ÖZET METRİKLER ----
-        c1, c2, c3, c4 = st.columns(4)
-        c1.metric("Genel Toplam ($)", f"{toplam:,.2f}")
-        c2.metric("Toplam Palet", f"{toplam_palet:.2f}")
-        c3.metric("Toplam Şeker Puan", f"{toplam_seker_puan:,}")
-        c4.metric("Toplam CBM", f"{total_cbm:.2f}")
+
+        c1.metric("الإجمالي العام ($)", f"{toplam:,.2f}")
+        c2.metric("إجمالي البليتات", f"{toplam_palet:.2f}")
+        c3.metric("إجمالي نقاط شكر", f"{toplam_seker_puan:,}")
+        c4.metric("إجمالي CBM", f"{total_cbm:.2f}")
 
         # Yükleme tipi
         yukleme_tipi = st.radio(
-            "Yükleme Biçimi Seçiniz",
-            options=["TIR (33 Palet)", "Konteynır (40'lık, 24 Palet)", "Konteynır (20'lik, 11 Palet)"],
+            ""اختر نوع التحميل",
+            options=["شاحنة (33 بليت)", "حاوية (40 قدم، 24 بليت)", "حاوية (20 قدم، 11 بليت)"],
             index=0,
             horizontal=True
         )
-        if yukleme_tipi.startswith("TIR"):
+        if yukleme_tipi.startswith("شاحنة"):
             max_palet = 33
         elif "40" in yukleme_tipi:
             max_palet = 24
@@ -448,17 +459,17 @@ if st.session_state.show_checkout:
 
         st.markdown(f"""
             <div style='font-size:1.12em; font-weight:bold; color:#215; margin:10px 0 6px 0;'>
-              Şu anda sepette <span style="color:#b70404;">{toplam_palet:.2f} palet</span> var. <br>
-              <span style="color:#3a79dd;">Tam {max_palet} palet</span> için 
-              <span style="color:#b7a004;">{kalan_palet:.2f} palet</span> yer kaldı. <br>
-              Toplam Şeker Puan: <span style="color:#b7046d;">{toplam_seker_puan:,}</span>
+              يوجد حاليًا في الشاحنة <span style="color:#b70404;">{toplam_palet:.2f} بليت</span>.<br>
+              للوصول إلى <span style="color:#3a79dd;">{max_palet} بليت</span>
+              تبقى <span style="color:#b7a004;">{kalan_palet:.2f} بليت</span> من المساحة.<br>
+              إجمالي نقاط شكر: <span style="color:#b7046d;">{toplam_seker_puan:,}</span>
             </div>
         """, unsafe_allow_html=True)
     else:
         st.table(pd.DataFrame(columns=[
-              "Ürün Grubu", "Ürün Adı", "Koli Adedi", "Koli Fiyatı (€)", "Toplam (€)", "Koli CBM", "Toplam CBM", "Toplam Palet", "Şeker Puan"
+               "مجموعة المنتج", "اسم المنتج", "عدد الكراتين", "سعر الكرتون (€)", "الإجمالي (€)", "حجم الكرتون (CBM)", "إجمالي CBM", "إجمالي البليتات", "نقاط شكر"
         ]))
-        st.info("Henüz TIR'ınızda ürün yok.")
+        st.info("لا يوجد أي منتج في شاحنتك بعد.")
 
     # PDF oluşturma
     def pdf_siparis_olustur(summary, bayi_adi, tarih_str):
@@ -472,13 +483,13 @@ if st.session_state.show_checkout:
         pdf.add_font("DejaVu", "B", FONT_BLD, uni=True)
 
         pdf.set_font("DejaVu", "", 14)
-        pdf.cell(0, 9, "ŞEKEROĞLU SİPARİŞ", 0, 1, 'C')
+       pdf.cell(0, 9, "طلب شكروغلو", 0, 1, 'C')
         pdf.set_font("DejaVu", "", 7)
-        pdf.cell(0, 5, f"Tarih: {tarih_str}", 0, 1, 'R')
-        pdf.cell(0, 5, f"Siparişi Veren Bayi: {bayi_adi}", 0, 1, 'L')
+        pdf.cell(0, 5, f"التاريخ: {tarih_str}", 0, 1, 'R')
+        pdf.cell(0, 5, f"الوكيل مقدم الطلب: {bayi_adi}", 0, 1, 'L')
         pdf.ln(2)
         pdf.set_font("DejaVu", "B", 7)
-        cols = ["Grup", "Ürün", "Koli", "Fiyat", "Tutar", "Palet", "Puan"]
+        cols = ["المجموعة", "المنتج", "الكرتون", "السعر", "الإجمالي", "البليت", "النقاط"]
         widths = [17,   50,     12,     16,      17,      12,      12]
         for col, w in zip(cols, widths):
             pdf.cell(w, 5, col, border=1, align="C")
@@ -495,21 +506,21 @@ if st.session_state.show_checkout:
             pdf.ln()
         pdf.ln(6)
         pdf.set_font("DejaVu", "", 8)
-        pdf.cell(65, 5, "Siparişi Veren:", 0, 0, 'L')
-        pdf.cell(65, 5, "Yönetici Onayı:", 0, 1, 'L')
+        pdf.cell(65, 5, "مقدم الطلب:", 0, 0, 'L')
+        pdf.cell(65, 5, "موافقة الإدارة:", 0, 1, 'L')
         pdf.cell(65, 9, "", 1, 0, 'L')
         pdf.cell(65, 9, "", 1, 1, 'L')
         return pdf
 
     if not summary.empty and "Toplam ($)" in summary.columns:
         pdf_tarih = datetime.datetime.now().strftime("%d.%m.%Y")
-        if st.button("📄 PDF Çıktısı Al"):
+         if st.button("📄 إنشاء ملف PDF"):
             pdf = pdf_siparis_olustur(summary, bayi_adi, pdf_tarih)
             with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_file:
                 pdf.output(tmp_file.name)
                 with open(tmp_file.name, "rb") as f:
                     st.download_button(
-                        label="PDF İndir",
+                        label="تحميل PDF",
                         data=f.read(),
                         file_name=f"Siparis_{bayi_adi}_{pdf_tarih.replace('.', '-')}.pdf",
                         mime="application/pdf"
@@ -518,19 +529,19 @@ if st.session_state.show_checkout:
     # Sepetten ürün çıkarma
     if not summary.empty and "Toplam ($)" in summary.columns:
         for sidx, row in summary.iterrows():
-            if st.button(f"❌ {row['Ürün Adı']} ürünü çıkar", key=f"del_checkout_{sidx}"):
+            if st.button(f"❌ إزالة المنتج {row['Ürün Adı']}", key=f"del_checkout_{sidx}"):
                 st.session_state.cart.pop(sidx)
                 save_cart_to_file(st.session_state.cart, bayi_adi)
                 st.rerun()
 
         # SİPARİŞİ ONAYLA → puanı ekle + e-posta gönder
-        if st.button("Siparişi Onayla"):
+        if st.button("تأكيد الطلب"):
             if st.session_state.revizyon_siparis:
                 siparis_kodu = st.session_state.revizyon_siparis + "-REV"
-                konu_etiketi = "REVİZE SİPARİŞ"
+                 konu_etiketi = "طلب معدل"
             else:
                 siparis_kodu = f"SP-{datetime.datetime.now().strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}_{bayi_adi}"
-                konu_etiketi = "YENİ SİPARİŞ"
+                konu_etiketi = "طلب جديد"
 
             # Excel kaydet
             filepath = f"{ORDERS_PATH}/{siparis_kodu}.xlsx"
@@ -541,26 +552,26 @@ if st.session_state.show_checkout:
 
             # Mail gövdesi
             mail_body = f"""
-Merhaba,
+مرحباً،
 
-Siparişi veren bayi: {bayi_adi}
-Sipariş Kodu: {siparis_kodu}
+الوكيل الذي قدم الطلب: {bayi_adi}
+رمز الطلب: {siparis_kodu}
 
-{'Daha önce gönderdiğiniz sipariş üzerinde değişiklik yapılmıştır.' if konu_etiketi=="REVİZE SİPARİŞ" else 'Yeni sipariş oluşturuldu.'}
+{'تم تعديل الطلب الذي أرسلته سابقاً.' if konu_etiketi=="طلب معدل" else 'تم إنشاء طلب جديد.'}
 
-Sipariş özeti ektedir.
+ملخص الطلب مرفق
 
-Genel Toplam: {toplam:.2f} $
-Toplam Palet: {toplam_palet:.2f}
-Toplam Şeker Puan: {toplam_seker_puan:,}
+الإجمالي العام: {toplam:.2f} $
+إجمالي البليتات: {toplam_palet:.2f}
+إجمالي نقاط شكر: {toplam_seker_puan:,}
 
-İyi Çalışmalar!
+مع أطيب التحيات!
 """
 
             msg = MIMEMultipart()
             msg['From'] = "todo@sekeroglugroup.com"
             msg['To'] = "export1@sekeroglugroup.com, kemal.ilker27@gmail.com"
-            msg['Subject'] = f"{konu_etiketi} - {bayi_adi} - Sipariş Kodu: {siparis_kodu}"
+            msg['Subject'] = f"{konu_etiketi} - {bayi_adi} - رمز الطلب: {siparis_kodu}
             msg.attach(MIMEText(mail_body, 'plain'))
             with open(filepath, "rb") as file:
                 part = MIMEApplication(file.read(), Name="bayi_siparisi.xlsx")
@@ -580,8 +591,8 @@ Toplam Şeker Puan: {toplam_seker_puan:,}
                 server.sendmail(msg['From'], [a.strip() for a in msg['To'].split(",")], msg.as_string())
                 server.quit()
 
-                st.success(f"Siparişiniz gönderildi! Sipariş Kodu: {siparis_kodu}")
-                st.info(f"Güncel Toplam Şeker Puanınız: {get_bayi_puan(bayi_adi)}")
+                st.success(f"تم إرسال طلبك! رمز الطلب: {siparis_kodu}")
+                st.info(f"إجمالي نقاط شكر الحالية: {get_bayi_puan(bayi_adi)}")
 
                 # sepet temizliği
                 st.session_state.cart = []
@@ -591,13 +602,13 @@ Toplam Şeker Puan: {toplam_seker_puan:,}
                 st.session_state.revizyon_loaded = False
                 st.rerun()
             except Exception as e:
-                st.error(f"E-posta gönderilemedi! Hata: {e}")
+                st.error(f"تعذر إرسال البريد الإلكتروني! الخطأ: {e}")
 
     # Bilgilendirme
     if st.session_state.get("sepet_duzenlendi", False):
-        st.success("Sipariş TIR'a eklendi ve düzenlenebilir!")
+        st.success("تمت إضافة الطلب إلى الشاحنة ويمكن تعديله!")
         st.session_state.sepet_duzenlendi = False
 
-    if st.button("← Alışverişe Devam Et"):
+    if st.button("← متابعة التسوق"):
         st.session_state.show_checkout = False
         st.rerun()
