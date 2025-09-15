@@ -215,7 +215,7 @@ if not st.session_state.show_checkout:
     try:
         df = load_sheet(sheet_id, sheet_name)
     except Exception as e:
-         st.error(f"تعذر تحميل البيانات: {e}")
+        st.error(f"تعذر تحميل البيانات: {e}")
         st.stop()
 
     st.markdown(f"<h2 style='margin-top:12px;'>شاشة طلب الوكيل — {secili_grup}</h2>", unsafe_allow_html=True)
