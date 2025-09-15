@@ -137,7 +137,7 @@ if not st.session_state.login_ok:
         if username in BAYI_KULLANICILAR and BAYI_KULLANICILAR[username] == password:
             st.session_state.login_ok = True
             st.session_state.bayi_adi = username
-             st.success("تم تسجيل الدخول بنجاح!")
+            st.success("تم تسجيل الدخول بنجاح!")
             st.rerun()
         else:
             st.error("اسم المستخدم أو كلمة المرور غير صحيحة!")
