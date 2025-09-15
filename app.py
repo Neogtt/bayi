@@ -441,7 +441,7 @@ if st.session_state.show_checkout:
 
         # Yükleme tipi
         yukleme_tipi = st.radio(
-            ""اختر نوع التحميل",
+            "اختر نوع التحميل",
             options=["شاحنة (33 بليت)", "حاوية (40 قدم، 24 بليت)", "حاوية (20 قدم، 11 بليت)"],
             index=0,
             horizontal=True
