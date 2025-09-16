@@ -282,7 +282,7 @@ if not st.session_state.show_checkout:
                     else:
                         palet_var = False
                         if koli_cbm_raw is not None and str(koli_cbm_raw).strip() != "":
-                            detaylar.append(f"حجم الكرتون (CBM): {koli_cbm_raw}"
+                            detaylar.append(f"حجم الكرتون (CBM): {koli_cbm_raw}")
                     st.write("  \n".join(detaylar))
 
                     siparis_opsiyon = ("كرتون", "بليت") if palet_var else ("كرتون",)
